@@ -22,6 +22,12 @@ def updateBoard(removedMagnet, addedMagnet):
     
     chessBoard.push(move)
 
+    #Change current player colour
+    if currentPlayerColour == chess.WHITE:
+        currentPlayerColour = chess.BLACK
+    else:
+        currentPlayerColour = chess.WHITE
+
 def readMagnetBoard():
     """
     Returns the current magnet board (0s and 1s)
