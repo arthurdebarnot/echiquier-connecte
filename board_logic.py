@@ -141,10 +141,16 @@ def gameTick():
 
                 
                 #Move detector logic
-                if moveType == -1:
+                if moveType == -1: #piece enlevée
                     modifiedSquareColour = chessBoard.piece_at(modifiedSquare_chess).color
                     if currentPlayerColour == modifiedSquareColour:
-                        modifiedSquareStack = [modifiedSquare, modifiedSquareColour, moveType]
+                        if modifiedSquareStack == None:
+                            modifiedSquareStack = [modifiedSquare, modifiedSquareColour, moveType]
+                        else:
+                            print("ERROR: more than 1 friendly piece picked up")
+                            illegalSituationInAction = True
+                            currentTime = time.time()
+                            return currentFen
 
                 else:
                     # if currentPlayerColour != modifiedSquareColour:
