@@ -89,9 +89,9 @@ def getModifiedSquare(differenceBoard):
     return differenceBoard.nonzero()[0][0], differenceBoard.nonzero()[1][0]
 
 
+# Game Loop
 while True:
 
-    #Game Loop
     if not illegalSituationInAction:
 
         magnetBoard_new = readMagnetBoard()
