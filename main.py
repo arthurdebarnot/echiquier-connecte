@@ -11,15 +11,9 @@ while True:
     reading_fen = board_logic.gameTick() #renvoie une fen
 
     if reading_fen != prev_fen: #une coup vient d'être effectué
-<<<<<<< HEAD
         eval1 = stockfish_interface.stockfish_evaluation(prev_fen)
         eval2 = stockfish_interface.stockfish_evaluation(reading_fen)
 
-=======
-        # eval1 = stockfish_interface.stockfish_evaluation(prev_fen)
-        # eval2 = stockfish_interface.stockfish_evaluation(reading_fen)
-        # print("La nouvelle position est évaluée à ", str(eval2))
->>>>>>> origin/main
         print("Une coup a été joué !")
 
 
