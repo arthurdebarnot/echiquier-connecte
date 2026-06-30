@@ -1,5 +1,4 @@
 ## Code pour gérer la plateau de jeu: quelles pièces sont où, etc.
-
 import numpy as np
 import chess
 import time
@@ -11,7 +10,9 @@ def createStartingMagnetBoard():
     return board
 
 chessBoard = chess.Board(chess.STARTING_FEN)
+
 CASTLE_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w KQkq - 0 1'
+
 startingMagnetBoard = createStartingMagnetBoard()
 
 magnetBoard_prev = np.copy(startingMagnetBoard)
@@ -44,7 +45,7 @@ def updateBoard(removedMagnet, addedMagnet):
         print("ERROR: illegal move. Please undo")
         illegalSituationInAction = True
         currentTime = time.time()
-        return
+        return chessBoard.fen()
     
     chessBoard.push(move)
 
@@ -58,6 +59,8 @@ def updateBoard(removedMagnet, addedMagnet):
         currentPlayerColour = chess.BLACK
     else:
         currentPlayerColour = chess.WHITE
+
+    return chessBoard.fen()
 
 def readMagnetBoard():
     """
@@ -90,7 +93,29 @@ def getModifiedSquare(differenceBoard):
 
 
 # Game Loop
-while True:
+def gameTick():
+
+    #globalise the variables (cursed maybe...)
+    global chessBoard
+
+    global startingMagnetBoard
+
+    global magnetBoard_prev
+    global magnetBoard_new
+
+    global currentPlayerColour
+
+    global modifiedSquareStack
+
+    global illegalSituationInAction
+    global lastlegalBoard
+
+    global legalPositionTimeCounter
+    global currentTime
+
+
+    currentFen = chessBoard.fen()
+
 
     if not illegalSituationInAction:
 
@@ -107,7 +132,7 @@ while True:
                 print("ERROR: more than 1 difference detected")
                 illegalSituationInAction = True
                 currentTime = time.time()
-                continue
+                return currentFen
             else:
                 modifiedSquare = getModifiedSquare(differenceBoard) #tuple of grid position of modified square
                 modifiedSquare_chess = chess.square(modifiedSquare[1], modifiedSquare[0])  #NB: Syntax for chess.py is file then rank (ie colonne then ligne mdr les batards)
@@ -132,25 +157,23 @@ while True:
                         print("ERROR: piece placed, but no piece removed")
                         illegalSituationInAction = True
                         currentTime = time.time()
-                        continue
+                        return currentFen
 
                     if modifiedSquareStack[2] == 1:
                         print("ERROR: two pieces of same colour were placed")
                         illegalSituationInAction = True
                         currentTime = time.time()
-                        continue
+                        return currentFen
 
                     startPos = modifiedSquareStack[0]
                     endPos = modifiedSquare
                         
                     if startPos == endPos:
                         modifiedSquareStack = None
-                        continue
+                        return currentFen
                     
-                    updateBoard(startPos, endPos)
+                    currentFen = updateBoard(startPos, endPos)
                     modifiedSquareStack = None
-
-
 
 
 
@@ -182,9 +205,14 @@ while True:
             legalPositionTimeCounter = 0
             magnetBoard_new = np.copy(currentMagnetBoard)
             magnetBoard_prev = np.copy(currentMagnetBoard)
-            continue
+            return currentFen
 
         print("legalPositionTime counter is : ", legalPositionTimeCounter)
+
+
+
+
+    return currentFen
 
         
 
