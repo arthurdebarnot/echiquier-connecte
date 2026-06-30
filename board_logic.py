@@ -43,9 +43,9 @@ lastlegalBoard = None
 legalPositionTimeCounter = 0
 currentTime = time.time()
 
+# Game Loop
 while True:
 
-    #Game Loop
     if not illegalSituationInAction:
         magnetBoard_new = readMagnetBoard()
 
