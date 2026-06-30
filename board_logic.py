@@ -53,13 +53,10 @@ def updateBoard(removedMagnet, addedMagnet):
     lastlegalBoard = np.copy(magnetBoard_new)
 
     global currentPlayerColour
-    
-    #Change current player colour
-    if currentPlayerColour == chess.WHITE:
-        currentPlayerColour = chess.BLACK
-    else:
-        currentPlayerColour = chess.WHITE
 
+    #Change current player colour
+    currentPlayerColour = chessBoard.turn
+        
     return chessBoard.fen()
 
 def readMagnetBoard():
