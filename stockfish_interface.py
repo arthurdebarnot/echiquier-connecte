@@ -1,7 +1,7 @@
 import chess
 from stockfish import Stockfish
 
-STOCKFISH_PATH = 'stockfish'
+STOCKFISH_PATH = 'stockfish/stockfish-windows-x86-64-avx2.exe'
 
 _sf_instance = None
 
@@ -19,7 +19,7 @@ def _get_engine() -> Stockfish:
     return _sf_instance
 
 
-def _stockfish(fen: str) -> chess.Move:
+def stockfish_best_move(fen: str) -> chess.Move:
     sf = _get_engine()
     sf.set_fen_position(fen)
     bestmove = sf.get_best_move_time(500)
@@ -28,3 +28,8 @@ def _stockfish(fen: str) -> chess.Move:
         raise ValueError("Stockfish n'a pas retourné de coup")
 
     return chess.Move.from_uci(bestmove)
+
+def stockfish_evaluation(fen: str):
+    sf = _get_engine()
+    sf.set_fen_position(fen)
+    return sf.get_evaluation(500)
