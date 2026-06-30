@@ -1,0 +1,13 @@
+name: chess
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - time
+  - numpy
+  - chess
+  - pip
+  - pip :
+    - stockfish

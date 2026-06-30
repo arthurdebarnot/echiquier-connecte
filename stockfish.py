@@ -1,9 +1,6 @@
 import chess
 from stockfish import Stockfish
 
-from app import db
-from app.models.models_echecs import EchecsDefi, EchecsPartie, EchecsElo
-
 STOCKFISH_PATH = 'stockfish'
 
 _sf_instance = None
