@@ -10,7 +10,7 @@ prev_fen = chess.STARTING_FEN
 while True:
     reading_fen = board_logic.gameTick() #renvoie une fen
 
-    if reading_fen != prev_fen: #une coup vient d'être effectué
+    if reading_fen != prev_fen: #un coup vient d'être effectué
         eval1 = stockfish_interface.stockfish_evaluation(prev_fen)
         eval2 = stockfish_interface.stockfish_evaluation(reading_fen)
 

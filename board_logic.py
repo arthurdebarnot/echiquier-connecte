@@ -11,8 +11,6 @@ def createStartingMagnetBoard():
 
 chessBoard = chess.Board(chess.STARTING_FEN)
 
-CASTLE_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK2R w KQkq - 0 1'
-
 startingMagnetBoard = createStartingMagnetBoard()
 
 magnetBoard_prev = np.copy(startingMagnetBoard)
