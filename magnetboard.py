@@ -21,13 +21,18 @@ class MagnetBoard():
         self.opponent_piece_up_square = None
 
         self.is_castling = False
-        self.castling_move = None
+        self.castling_move: chess.Move = None
         self.castling_rook_squares = None
+
+        self.is_promoting = False
+        self.promoting_move: chess.Move = None
+        self.promoting_piece_type = None
+        self.is_promotion_done = False
 
     def update(self):
         """reads the switches"""
         print(self.is_invalid, self.friendly_piece_up_square, self.opponent_piece_up_square)
-        print(self.is_castling, self.castling_move, self.castling_rook_squares)
+        print(self.is_promoting, self.is_promotion_done, self.promoting_move, self.promoting_piece_type)
         user_input = input("What has changed ? ")
         if user_input == "":
             return self.board

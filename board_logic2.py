@@ -12,7 +12,7 @@ def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board):
     if magnetBoard.is_invalid:
         print(magnetBoard.validation_start_time)
         print("last_valid_board \n", np.flip(magnetBoard.last_valid_board, axis=0))
-        if not (magnetBoard.board - magnetBoard.last_valid_board).any():
+        if np.array_equal(magnetBoard.board, magnetBoard.last_valid_board):
             if magnetBoard.validation_start_time < 0:
                 magnetBoard.validation_start_time = time.time()
             elif time.time() - magnetBoard.validation_start_time >= 5:
@@ -23,11 +23,15 @@ def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board):
                 magnetBoard.castling_move = None
                 magnetBoard.is_castling = None
                 magnetBoard.castling_rook_squares = None
+                magnetBoard.is_promoting = False
+                magnetBoard.promoting_move = None
+                magnetBoard.promoting_piece_type = None
+                magnetBoard.is_promotion_done = False
         else:
             magnetBoard.validation_start_time = -1
         return
 
-    if not (magnetBoard.board - previous_magnetBoard).any():
+    if np.array_equal(magnetBoard.board, previous_magnetBoard):
         print("pas de changement")
         return
     
@@ -40,6 +44,49 @@ def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board):
         return
     
     modified_square = chess.square(difference_magnetBoard_nonzero[1][0], difference_magnetBoard_nonzero[0][0])
+
+    if magnetBoard.is_promoting:
+        tampon_squares = [chess.square(i, 7*(1 - chessBoard.turn)) for i in range(4)]
+
+        if modified_square == magnetBoard.promoting_move.to_square:
+            if difference_magnetBoard[difference_magnetBoard_nonzero][0] == -1: # pion soulevé
+                return
+            else:
+                magnetBoard.is_promotion_done = True
+        elif modified_square not in tampon_squares: # on touche à une case random pendant la promotion
+            print("Tu ne peux pas modifier l'état d'une case random pendant la promotion")
+            magnetBoard.is_invalid = True
+            return
+        else: # on modifie l'état d'une des 4 cases tampon
+            if magnetBoard.friendly_piece_up_square is not None and magnetBoard.friendly_piece_up_square != modified_square:
+                print("Tu as déjà touché une autre pièce")
+                magnetBoard.is_invalid = True
+                return
+
+            magnetBoard.friendly_piece_up_square = modified_square # on stocke la case modifiée, aucun rapport avec friendly ou que la pièce soit soulevée ou posée
+            
+            if magnetBoard.board[difference_magnetBoard_nonzero] == magnetBoard.last_valid_board[difference_magnetBoard_nonzero]:
+                return
+            
+            # on est revenu à un état normal
+
+            magnetBoard.promoting_piece_type = chess.Board(chess.STARTING_FEN).piece_at(modified_square).piece_type
+
+        if magnetBoard.is_promotion_done and magnetBoard.promoting_piece_type is not None:
+            
+            magnetBoard.promoting_move.promotion = magnetBoard.promoting_piece_type
+
+            chessBoard.push(magnetBoard.promoting_move)
+            magnetBoard.last_valid_board = magnetBoard.board.copy()
+
+            magnetBoard.friendly_piece_up_square = None
+            magnetBoard.is_promoting = False
+            magnetBoard.is_promotion_done = False
+            magnetBoard.promoting_move = None
+            magnetBoard.promoting_piece_type = None
+        
+        return
+
     
     if difference_magnetBoard[difference_magnetBoard_nonzero][0] == -1: # une pièce est soulevée
         if chessBoard.color_at(modified_square) == chessBoard.turn: # pièce alliée
@@ -75,9 +122,10 @@ def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board):
                 magnetBoard.friendly_piece_up_square = None
                 return
 
-        move = chess.Move(magnetBoard.friendly_piece_up_square, modified_square)
+        move = chess.Move(magnetBoard.friendly_piece_up_square, modified_square, promotion=None)
+        promotion_move = chess.Move(magnetBoard.friendly_piece_up_square, modified_square, promotion=chess.QUEEN)
 
-        if move not in chessBoard.legal_moves:
+        if not chessBoard.is_legal(move) and not chessBoard.is_legal(promotion_move):
             print("move illégal")
             magnetBoard.is_invalid = True
             return
@@ -85,6 +133,13 @@ def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board):
         if not chessBoard.is_capture(move) and magnetBoard.opponent_piece_up_square is not None:
             print("pas une capture mais pièce adverse soulevée")
             magnetBoard.is_invalid = True
+            return
+        
+        if chessBoard.piece_at(move.from_square).piece_type == chess.PAWN and (chess.square_rank(move.to_square) == 0 or chess.square_rank(move.to_square) == 7):
+            magnetBoard.is_promoting = True
+            magnetBoard.promoting_move = move
+            magnetBoard.friendly_piece_up_square = None
+            magnetBoard.opponent_piece_up_square = None
             return
         
         if chessBoard.is_kingside_castling(move) or chessBoard.is_queenside_castling(move):
@@ -110,7 +165,7 @@ def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board):
             
         
         chessBoard.push(move)
+        magnetBoard.last_valid_board = magnetBoard.board.copy()
         magnetBoard.friendly_piece_up_square = None
         magnetBoard.opponent_piece_up_square = None
-        magnetBoard.last_valid_board = magnetBoard.board.copy()
         return
