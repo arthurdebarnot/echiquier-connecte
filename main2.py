@@ -2,20 +2,22 @@ import numpy as np
 import chess
 from board_logic2 import gameTick
 from magnetboard import MagnetBoard
+import stockfish_interface
 
 fen = "5bn1/rP1Kpppp/8/7k/8/8/1PPPPPPP/R7 w - - 0 1"
+prev_fen = fen
 
 chessBoard = chess.Board(fen)
 magnetBoard = MagnetBoard(chessBoard)
+
 
 while True:
     print(chessBoard)
     gameTick(magnetBoard, chessBoard)
 
-
     # if chessBoard.fen != prev_fen: #un coup vient d'être effectué
     #     eval1 = stockfish_interface.stockfish_evaluation(prev_fen)
-    #     eval2 = stockfish_interface.stockfish_evaluation(reading_fen)
+    #     eval2 = stockfish_interface.stockfish_evaluation(chessBoard.fen)
 
     #     print("Une coup a été joué !")
 
@@ -54,5 +56,4 @@ while True:
     #         else: #çàd oldMateValue > 0 and newMateValue < 0
     #             print("Les blancs ont perdu leur avantage: maintenant, les noirs peuvent gagner en", -newMateValue, "coups")
 
-    #     prev_fen = reading_fen
-
+    #     prev_fen = chessBoard.fen
