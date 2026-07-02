@@ -5,13 +5,11 @@ import time
 from magnetboard import MagnetBoard
 
 # Game Loop
-def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board):
-    previous_magnetBoard = magnetBoard.board.copy()
+def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board, previous_magnetBoard):
     magnetBoard.update()
 
     if magnetBoard.is_invalid:
-        print(magnetBoard.validation_start_time)
-        print("last_valid_board \n", np.flip(magnetBoard.last_valid_board, axis=0))
+        print("Invalide !")
         if np.array_equal(magnetBoard.board, magnetBoard.last_valid_board):
             if magnetBoard.validation_start_time < 0:
                 magnetBoard.validation_start_time = time.time()
@@ -27,12 +25,12 @@ def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board):
                 magnetBoard.promoting_move = None
                 magnetBoard.promoting_piece_type = None
                 magnetBoard.is_promotion_done = False
+                print("La partie peut continuer !")
         else:
             magnetBoard.validation_start_time = -1
         return
 
     if np.array_equal(magnetBoard.board, previous_magnetBoard):
-        print("pas de changement")
         return
     
     difference_magnetBoard = magnetBoard.board - previous_magnetBoard
@@ -65,7 +63,7 @@ def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board):
 
             magnetBoard.friendly_piece_up_square = modified_square # on stocke la case modifiée, aucun rapport avec friendly ou que la pièce soit soulevée ou posée
             
-            if magnetBoard.board[difference_magnetBoard_nonzero] == magnetBoard.last_valid_board[difference_magnetBoard_nonzero]:
+            if magnetBoard.board[difference_magnetBoard_nonzero] != magnetBoard.last_valid_board[difference_magnetBoard_nonzero]:
                 return
             
             # on est revenu à un état normal

@@ -32,11 +32,11 @@ class MagnetBoard():
     def update(self):
         """reads the switches"""
         # print(self.is_invalid, self.friendly_piece_up_square, self.opponent_piece_up_square)
-        # print(self.is_promoting, self.is_promotion_done, self.promoting_move, self.promoting_piece_type)
-        user_input = input("What has changed ? ")
-        if user_input == "":
-            return self.board
-        else:
-            list_of_changes = user_input.split("_")
-            for change in list_of_changes:
-                self.board[int(change[1]), int(change[0])] = int(change[2])
+        print(self.is_promoting, self.is_promotion_done, self.promoting_move, self.promoting_piece_type)
+        # user_input = input("What has changed ? ")
+        # if user_input == "":
+        #     return self.board
+        # else:
+        #     list_of_changes = user_input.split("_")
+        #     for change in list_of_changes:
+        #         self.board[int(change[1]), int(change[0])] = int(change[2])

@@ -1,20 +1,24 @@
 import chess
+import tkinter as tk
 from board_logic import gameTick
 from magnetboard import MagnetBoard
 import evaluation
+import chesswindow
 
-fen = "rnbqk1nr/1ppp1Qpp/p7/2b1p3/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 0 1"
+fen = chess.STARTING_FEN
 prev_fen = fen
 
 chessBoard = chess.Board(fen)
 magnetBoard = MagnetBoard(chessBoard)
+chessWindow = chesswindow.ChessWindow(magnetBoard, chessBoard)
 
 prev_value = evaluation.evaluate(chessBoard.fen())
 
 
 while True:
-    print(chessBoard)
-    gameTick(magnetBoard, chessBoard)
+    previous_magnetBoard = magnetBoard.board.copy()
+    chessWindow.update(magnetBoard, chessBoard)
+    gameTick(magnetBoard, chessBoard, previous_magnetBoard)
 
     if chessBoard.is_checkmate():
         print("Fin de partie par échec et mat !")
