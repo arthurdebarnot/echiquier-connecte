@@ -15,10 +15,12 @@ def evaluate(fen: str):
 def judge_move(chessBoard: chess.Board, prev_fen, prev_value):
     current_fen = chessBoard.fen()
 
-    if current_fen != prev_fen: # un coup vient d'être effectué
-        current_value = evaluate(current_fen)
+    if current_fen == prev_fen: # aucun coup n'a été effectué
+        return prev_fen, prev_value
+    
+    current_value = evaluate(current_fen)
 
-        print(- np.arcsinh(current_value) - np.arcsinh(prev_value))
-        print(prev_value, -current_value)
+    print(- np.arcsinh(current_value) - np.arcsinh(prev_value))
+    print(prev_value, -current_value)
 
-        return current_fen, current_value
+    return current_fen, current_value
