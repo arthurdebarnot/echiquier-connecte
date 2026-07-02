@@ -2,224 +2,170 @@
 import numpy as np
 import chess
 import time
-
-def createStartingMagnetBoard():
-    board = np.zeros((8,8), dtype = int)
-    board[0:2,:]=1
-    board[6:,:]=1
-    return board
-
-chessBoard = chess.Board(chess.STARTING_FEN)
-
-startingMagnetBoard = createStartingMagnetBoard()
-
-magnetBoard_prev = np.copy(startingMagnetBoard)
-magnetBoard_new = np.copy(startingMagnetBoard)
-
-currentPlayerColour = chess.WHITE
-
-modifiedSquareStack = None #with convention [(file, rank), colour, moveType]
-
-
-illegalSituationInAction = False
-lastlegalBoard = np.copy(startingMagnetBoard)
-
-legalPositionTimeCounter = 0
-currentTime = time.time()
-
-
-def updateBoard(removedMagnet, addedMagnet):
-    """
-    removedMagnet and addedMagnet are two tuples (.,.) and (.,.), indicating grid-position of concerned squares
-    """
-    
-    move = chess.Move(chess.square(removedMagnet[1], removedMagnet[0]), chess.square(addedMagnet[1], addedMagnet[0])) #NB: Syntax for chess.py is file then rank (ie colonne then ligne mdr les batards)
-
-
-    if move not in chessBoard.legal_moves:
-        global illegalSituationInAction
-        global currentTime
-
-        print("ERROR: illegal move. Please undo")
-        illegalSituationInAction = True
-        currentTime = time.time()
-        return chessBoard.fen()
-    
-    chessBoard.push(move)
-
-    global lastlegalBoard
-    lastlegalBoard = np.copy(magnetBoard_new)
-
-    global currentPlayerColour
-
-    #Change current player colour
-    currentPlayerColour = chessBoard.turn
-        
-    return chessBoard.fen()
-
-def readMagnetBoard():
-    """
-    Returns the current magnet board (0s and 1s) (at the moment, only simulated...)
-    """
-    board = magnetBoard_new
-
-    #NB: if input "READ", will print board
-    user_input = input("Input the changes: ")
-    
-    if user_input == "READ":
-        print(chessBoard)
-    elif user_input == "":
-        return board
-    else:
-        list_of_changes = user_input.split("_") #Syntax: enter a string of type "430_131_160", where grid position (4,3) becomes 1, (1,3) becomes 1, and (1,6) becomes 0
-    
-        for change in list_of_changes:
-            board[int(change[0]), int(change[1])] = int(change[2])
-            print(change)
-
-    return board
-
-
-def getModifiedSquare(differenceBoard):
-    """
-    Returns tuple of grid position of modified square
-    """
-    return differenceBoard.nonzero()[0][0], differenceBoard.nonzero()[1][0]
-
+from magnetboard import MagnetBoard
 
 # Game Loop
-def gameTick():
+def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board):
+    previous_magnetBoard = magnetBoard.board.copy()
+    magnetBoard.update()
 
-    #globalise the variables (cursed maybe...)
-    global chessBoard
-
-    global startingMagnetBoard
-
-    global magnetBoard_prev
-    global magnetBoard_new
-
-    global currentPlayerColour
-
-    global modifiedSquareStack
-
-    global illegalSituationInAction
-    global lastlegalBoard
-
-    global legalPositionTimeCounter
-    global currentTime
-
-
-    currentFen = chessBoard.fen()
-
-
-    if not illegalSituationInAction:
-
-        magnetBoard_new = readMagnetBoard()
-
-        if not np.array_equal(magnetBoard_new, magnetBoard_prev):
-            differenceBoard = magnetBoard_new - magnetBoard_prev
-            numberofDifferences = int(np.sum(np.abs(differenceBoard), axis = (0,1)))
-
-            #Update board
-            magnetBoard_prev = np.copy(magnetBoard_new)
-            
-            if numberofDifferences > 1:
-                print("ERROR: more than 1 difference detected")
-                illegalSituationInAction = True
-                currentTime = time.time()
-                return currentFen
-            else:
-                modifiedSquare = getModifiedSquare(differenceBoard) #tuple of grid position of modified square
-                modifiedSquare_chess = chess.square(modifiedSquare[1], modifiedSquare[0])  #NB: Syntax for chess.py is file then rank (ie colonne then ligne mdr les batards)
-                
-                moveType = differenceBoard[modifiedSquare[0], modifiedSquare[1]] #1 if piece added, -1 if piece removed
-
-                
-                #Move detector logic
-                if moveType == -1: #piece enlevée
-                    modifiedSquareColour = chessBoard.piece_at(modifiedSquare_chess).color
-                    if currentPlayerColour == modifiedSquareColour:
-                        if modifiedSquareStack == None:
-                            modifiedSquareStack = [modifiedSquare, modifiedSquareColour, moveType]
-                        else:
-                            print("ERROR: more than 1 friendly piece picked up")
-                            illegalSituationInAction = True
-                            currentTime = time.time()
-                            return currentFen
-
-                else:
-                    # if currentPlayerColour != modifiedSquareColour:
-                    #     print("ERROR: player played out of turn. Please return to the last position") #Allumer les lumières
-                    #     illegalSituationInAction = True
-                    #     currentTime = time.time()
-                    #     continue
-
-                    if modifiedSquareStack == None:
-                        print("ERROR: piece placed, but no piece removed")
-                        illegalSituationInAction = True
-                        currentTime = time.time()
-                        return currentFen
-
-                    if modifiedSquareStack[2] == 1:
-                        print("ERROR: two pieces of same colour were placed")
-                        illegalSituationInAction = True
-                        currentTime = time.time()
-                        return currentFen
-
-                    startPos = modifiedSquareStack[0]
-                    endPos = modifiedSquare
-                        
-                    if startPos == endPos:
-                        modifiedSquareStack = None
-                        return currentFen
-                    
-                    currentFen = updateBoard(startPos, endPos)
-                    modifiedSquareStack = None
-
-
-
-
-
-    else: #Illegal situation in action
-    
-        currentMagnetBoard = readMagnetBoard()
-        
-
-        if np.array_equal(currentMagnetBoard,lastlegalBoard):
-
-            #Cette boucle if détecte l'instant exact où le board a été bien remise en bon état 
-            if legalPositionTimeCounter == 0:
-                legalPositionTimeCounter = 0.001
-                currentTime = time.time()
-
-            legalPositionTimeCounter += time.time() - currentTime
-
-            currentTime = time.time()
+    if magnetBoard.is_invalid:
+        print(magnetBoard.validation_start_time)
+        print("last_valid_board \n", np.flip(magnetBoard.last_valid_board, axis=0))
+        if np.array_equal(magnetBoard.board, magnetBoard.last_valid_board):
+            if magnetBoard.validation_start_time < 0:
+                magnetBoard.validation_start_time = time.time()
+            elif time.time() - magnetBoard.validation_start_time >= 5:
+                magnetBoard.is_invalid = False
+                magnetBoard.validation_start_time = -1
+                magnetBoard.friendly_piece_up_square = None
+                magnetBoard.opponent_piece_up_square = None
+                magnetBoard.castling_move = None
+                magnetBoard.is_castling = None
+                magnetBoard.castling_rook_squares = None
+                magnetBoard.is_promoting = False
+                magnetBoard.promoting_move = None
+                magnetBoard.promoting_piece_type = None
+                magnetBoard.is_promotion_done = False
         else:
-            legalPositionTimeCounter = 0
+            magnetBoard.validation_start_time = -1
+        return
 
+    if np.array_equal(magnetBoard.board, previous_magnetBoard):
+        print("pas de changement")
+        return
+    
+    difference_magnetBoard = magnetBoard.board - previous_magnetBoard
+    difference_magnetBoard_nonzero = difference_magnetBoard.nonzero()
 
-        if legalPositionTimeCounter > 5: #time to wait in seconds
-            print("All green!")
-            illegalSituationInAction = False
-            modifiedSquareStack = None
-            legalPositionTimeCounter = 0
-            magnetBoard_new = np.copy(currentMagnetBoard)
-            magnetBoard_prev = np.copy(currentMagnetBoard)
-            return currentFen
+    if len(difference_magnetBoard_nonzero[0]) > 1: # compte combien il y a de modification
+        print("plusieurs pièces bougées en même temps")
+        magnetBoard.is_invalid = True
+        return
+    
+    modified_square = chess.square(difference_magnetBoard_nonzero[1][0], difference_magnetBoard_nonzero[0][0])
 
-        print("legalPositionTime counter is : ", legalPositionTimeCounter)
+    if magnetBoard.is_promoting:
+        tampon_squares = [chess.square(i, 7*(1 - chessBoard.turn)) for i in range(4)]
 
+        if modified_square == magnetBoard.promoting_move.to_square:
+            if difference_magnetBoard[difference_magnetBoard_nonzero][0] == -1: # pion soulevé
+                return
+            else:
+                magnetBoard.is_promotion_done = True
+        elif modified_square not in tampon_squares: # on touche à une case random pendant la promotion
+            print("Tu ne peux pas modifier l'état d'une case random pendant la promotion")
+            magnetBoard.is_invalid = True
+            return
+        else: # on modifie l'état d'une des 4 cases tampon
+            if magnetBoard.friendly_piece_up_square is not None and magnetBoard.friendly_piece_up_square != modified_square:
+                print("Tu as déjà touché une autre pièce")
+                magnetBoard.is_invalid = True
+                return
 
+            magnetBoard.friendly_piece_up_square = modified_square # on stocke la case modifiée, aucun rapport avec friendly ou que la pièce soit soulevée ou posée
+            
+            if magnetBoard.board[difference_magnetBoard_nonzero] == magnetBoard.last_valid_board[difference_magnetBoard_nonzero]:
+                return
+            
+            # on est revenu à un état normal
 
+            magnetBoard.promoting_piece_type = chess.Board(chess.STARTING_FEN).piece_at(modified_square).piece_type
 
-    return currentFen
+        if magnetBoard.is_promotion_done and magnetBoard.promoting_piece_type is not None:
+            
+            magnetBoard.promoting_move.promotion = magnetBoard.promoting_piece_type
 
+            chessBoard.push(magnetBoard.promoting_move)
+            magnetBoard.last_valid_board = magnetBoard.board.copy()
+
+            magnetBoard.friendly_piece_up_square = None
+            magnetBoard.is_promoting = False
+            magnetBoard.is_promotion_done = False
+            magnetBoard.promoting_move = None
+            magnetBoard.promoting_piece_type = None
         
+        return
 
+    
+    if difference_magnetBoard[difference_magnetBoard_nonzero][0] == -1: # une pièce est soulevée
+        if chessBoard.color_at(modified_square) == chessBoard.turn: # pièce alliée
+            if magnetBoard.friendly_piece_up_square is not None:
+                print("pièce alliée déjà soulevée")
+                magnetBoard.is_invalid = True
+                magnetBoard.friendly_piece_up_square = None
+                magnetBoard.opponent_piece_up_square = None
+                return
+            magnetBoard.friendly_piece_up_square = modified_square
+        else: # pièce adverse
+            if magnetBoard.opponent_piece_up_square is not None:
+                print("pièce adverse déjà soulevée")
+                magnetBoard.is_invalid = True
+                magnetBoard.friendly_piece_up_square = None
+                magnetBoard.opponent_piece_up_square = None
+                return
+            magnetBoard.opponent_piece_up_square = modified_square
+        return
+    else: # une pièce est posée
+        if magnetBoard.friendly_piece_up_square is None: # aucune pièce alliée n'avait été soulevée
+            if magnetBoard.opponent_piece_up_square == modified_square: # une pièce adverse a été prise puis reposée
+                magnetBoard.opponent_piece_up_square = None
+                return
+                
+            print("aucune pièce alliée n'avait été soulevée")
+            magnetBoard.is_invalid = True
+            return
+        elif magnetBoard.friendly_piece_up_square == modified_square:
+                if magnetBoard.opponent_piece_up_square is not None:
+                    print("Repose la pièce adverse")
+                    magnetBoard.is_invalid = True
+                magnetBoard.friendly_piece_up_square = None
+                return
 
+        move = chess.Move(magnetBoard.friendly_piece_up_square, modified_square, promotion=None)
+        promotion_move = chess.Move(magnetBoard.friendly_piece_up_square, modified_square, promotion=chess.QUEEN)
 
-
-
-
-
+        if not chessBoard.is_legal(move) and not chessBoard.is_legal(promotion_move):
+            print("move illégal")
+            magnetBoard.is_invalid = True
+            return
+        
+        if not chessBoard.is_capture(move) and magnetBoard.opponent_piece_up_square is not None:
+            print("pas une capture mais pièce adverse soulevée")
+            magnetBoard.is_invalid = True
+            return
+        
+        if chessBoard.piece_at(move.from_square).piece_type == chess.PAWN and (chess.square_rank(move.to_square) == 0 or chess.square_rank(move.to_square) == 7):
+            magnetBoard.is_promoting = True
+            magnetBoard.promoting_move = move
+            magnetBoard.friendly_piece_up_square = None
+            magnetBoard.opponent_piece_up_square = None
+            return
+        
+        if chessBoard.is_kingside_castling(move) or chessBoard.is_queenside_castling(move):
+            magnetBoard.is_castling = True
+            magnetBoard.castling_move = move
+            if chess.square_file(move.to_square) == 6:
+                magnetBoard.castling_rook_squares = chess.square(7, chess.square_rank(move.to_square)), chess.square(5, chess.square_rank(move.to_square))
+            elif chess.square_file(move.to_square) == 2:
+                magnetBoard.castling_rook_squares = chess.square(0, chess.square_rank(move.to_square)), chess.square(3, chess.square_rank(move.to_square))
+            magnetBoard.friendly_piece_up_square = None
+            return
+        
+        if magnetBoard.is_castling:
+            if chessBoard.piece_at(move.from_square).piece_type != chess.ROOK or move.from_square != magnetBoard.castling_rook_squares[0] or move.to_square != magnetBoard.castling_rook_squares[1]:
+                print("la tour n'a pas été placée au bon endroit")
+                magnetBoard.is_invalid = True
+                return
+                
+            move = magnetBoard.castling_move # overwrite le move actuel pour compléter le castling
+            magnetBoard.is_castling = False
+            magnetBoard.castling_move = None
+            magnetBoard.castling_rook_squares = None
+            
+        
+        chessBoard.push(move)
+        magnetBoard.last_valid_board = magnetBoard.board.copy()
+        magnetBoard.friendly_piece_up_square = None
+        magnetBoard.opponent_piece_up_square = None
+        return
