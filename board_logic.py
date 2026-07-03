@@ -10,6 +10,8 @@ def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board, chessWindow: Che
     previous_magnetBoard = magnetBoard.board.copy()
     magnetBoard.update(chessBoard, chessWindow)
 
+    move = None
+
     if magnetBoard.is_invalid:
         print("Invalide !")
         if np.array_equal(magnetBoard.board, magnetBoard.last_valid_board):
@@ -20,13 +22,12 @@ def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board, chessWindow: Che
                 magnetBoard.validation_start_time = -1
                 magnetBoard.friendly_piece_up_square = None
                 magnetBoard.opponent_piece_up_square = None
-                magnetBoard.castling_move = None
                 magnetBoard.is_castling = None
                 magnetBoard.castling_rook_squares = None
                 magnetBoard.is_promoting = False
-                magnetBoard.promoting_move = None
                 magnetBoard.promoting_piece_type = None
                 magnetBoard.is_promotion_done = False
+                magnetBoard.current_move = None
                 print("La partie peut continuer !")
         else:
             magnetBoard.validation_start_time = -1
@@ -45,10 +46,10 @@ def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board, chessWindow: Che
     
     modified_square = chess.square(difference_magnetBoard_nonzero[1][0], difference_magnetBoard_nonzero[0][0])
 
-    if magnetBoard.is_promoting:
+    if magnetBoard.is_promoting: # promotion en cours
         tampon_squares = [chess.square(i, 7*(1 - chessBoard.turn)) for i in range(4)]
 
-        if modified_square == magnetBoard.promoting_move.to_square:
+        if modified_square == magnetBoard.current_move.to_square:
             if difference_magnetBoard[difference_magnetBoard_nonzero][0] == -1: # pion soulevé
                 return
             else:
@@ -74,15 +75,15 @@ def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board, chessWindow: Che
 
         if magnetBoard.is_promotion_done and magnetBoard.promoting_piece_type is not None:
             
-            magnetBoard.promoting_move.promotion = magnetBoard.promoting_piece_type
+            magnetBoard.current_move.promotion = magnetBoard.promoting_piece_type
 
-            chessBoard.push(magnetBoard.promoting_move)
+            chessBoard.push(magnetBoard.current_move)
             magnetBoard.last_valid_board = magnetBoard.board.copy()
 
             magnetBoard.friendly_piece_up_square = None
             magnetBoard.is_promoting = False
             magnetBoard.is_promotion_done = False
-            magnetBoard.promoting_move = None
+            magnetBoard.current_move = None
             magnetBoard.promoting_piece_type = None
         
         return
@@ -97,6 +98,7 @@ def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board, chessWindow: Che
                 magnetBoard.opponent_piece_up_square = None
                 return
             magnetBoard.friendly_piece_up_square = modified_square
+            return
         else: # pièce adverse
             if magnetBoard.opponent_piece_up_square is not None:
                 print("pièce adverse déjà soulevée")
@@ -105,7 +107,8 @@ def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board, chessWindow: Che
                 magnetBoard.opponent_piece_up_square = None
                 return
             magnetBoard.opponent_piece_up_square = modified_square
-        return
+            if magnetBoard.current_move is None:
+                return
     else: # une pièce est posée
         if magnetBoard.friendly_piece_up_square is None: # aucune pièce alliée n'avait été soulevée
             if magnetBoard.opponent_piece_up_square == modified_square: # une pièce adverse a été prise puis reposée
@@ -121,56 +124,59 @@ def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board, chessWindow: Che
                     magnetBoard.is_invalid = True
                 magnetBoard.friendly_piece_up_square = None
                 return
-
+        
         move = chess.Move(magnetBoard.friendly_piece_up_square, modified_square, promotion=None)
         promotion_move = chess.Move(magnetBoard.friendly_piece_up_square, modified_square, promotion=chess.QUEEN)
-
-        magnetBoard.current_move = move
 
         if not chessBoard.is_legal(move) and not chessBoard.is_legal(promotion_move):
             print("move illégal")
             magnetBoard.is_invalid = True
             return
-        
+    
         if not chessBoard.is_capture(move) and magnetBoard.opponent_piece_up_square is not None:
             print("pas une capture mais pièce adverse soulevée")
             magnetBoard.is_invalid = True
             return
         
-        if chessBoard.is_en_passant(magnetBoard.current_move) and magnetBoard.opponent_piece_up_square is None:
-            pass
+        if magnetBoard.current_move is None:
+            magnetBoard.current_move = move
         
-        if chessBoard.piece_at(move.from_square).piece_type == chess.PAWN and (chess.square_rank(move.to_square) == 0 or chess.square_rank(move.to_square) == 7):
-            magnetBoard.is_promoting = True
-            magnetBoard.promoting_move = move
-            magnetBoard.friendly_piece_up_square = None
-            magnetBoard.opponent_piece_up_square = None
-            return
-        
-        if chessBoard.is_kingside_castling(move) or chessBoard.is_queenside_castling(move):
-            magnetBoard.is_castling = True
-            magnetBoard.castling_move = move
-            if chess.square_file(move.to_square) == 6:
-                magnetBoard.castling_rook_squares = chess.square(7, chess.square_rank(move.to_square)), chess.square(5, chess.square_rank(move.to_square))
-            elif chess.square_file(move.to_square) == 2:
-                magnetBoard.castling_rook_squares = chess.square(0, chess.square_rank(move.to_square)), chess.square(3, chess.square_rank(move.to_square))
-            magnetBoard.friendly_piece_up_square = None
-            return
-        
-        if magnetBoard.is_castling:
-            if chessBoard.piece_at(move.from_square).piece_type != chess.ROOK or move.from_square != magnetBoard.castling_rook_squares[0] or move.to_square != magnetBoard.castling_rook_squares[1]:
-                print("la tour n'a pas été placée au bon endroit")
-                magnetBoard.is_invalid = True
-                return
-                
-            move = magnetBoard.castling_move # overwrite le move actuel pour compléter le castling
-            magnetBoard.is_castling = False
-            magnetBoard.castling_move = None
-            magnetBoard.castling_rook_squares = None
-            
-        
-        chessBoard.push(move)
-        magnetBoard.last_valid_board = magnetBoard.board.copy()
+    if move is None:
+        move = magnetBoard.current_move
+    
+    if chessBoard.is_en_passant(move) and magnetBoard.opponent_piece_up_square is None:
+        return
+    
+    if chessBoard.piece_at(move.from_square).piece_type == chess.PAWN and (chess.square_rank(move.to_square) == 0 or chess.square_rank(move.to_square) == 7):
+        magnetBoard.is_promoting = True
         magnetBoard.friendly_piece_up_square = None
         magnetBoard.opponent_piece_up_square = None
         return
+    
+    if chessBoard.is_kingside_castling(move) or chessBoard.is_queenside_castling(move):
+        magnetBoard.is_castling = True
+        if chess.square_file(move.to_square) == 6:
+            magnetBoard.castling_rook_squares = chess.square(7, chess.square_rank(move.to_square)), chess.square(5, chess.square_rank(move.to_square))
+        elif chess.square_file(move.to_square) == 2:
+            magnetBoard.castling_rook_squares = chess.square(0, chess.square_rank(move.to_square)), chess.square(3, chess.square_rank(move.to_square))
+        magnetBoard.friendly_piece_up_square = None
+        magnetBoard.current_cmove = move
+        return
+    
+    if magnetBoard.is_castling:
+        if chessBoard.piece_at(move.from_square).piece_type != chess.ROOK or move.from_square != magnetBoard.castling_rook_squares[0] or move.to_square != magnetBoard.castling_rook_squares[1]:
+            print("la tour n'a pas été placée au bon endroit")
+            magnetBoard.is_invalid = True
+            return
+            
+        move = magnetBoard.current_move # overwrite le move actuel pour compléter le castling
+        magnetBoard.is_castling = False
+        magnetBoard.current_cmove = None
+        magnetBoard.castling_rook_squares = None
+
+    chessBoard.push(move)
+    magnetBoard.last_valid_board = magnetBoard.board.copy()
+    magnetBoard.friendly_piece_up_square = None
+    magnetBoard.opponent_piece_up_square = None
+    magnetBoard.current_move = None
+    return

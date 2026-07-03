@@ -30,7 +30,7 @@ class MagnetBoard():
 
     def update(self, chessBoard: chess.Board, chessWindow):
         """reads the switches"""
-        # print(self.is_invalid, self.friendly_piece_up_square, self.opponent_piece_up_square)
+        print(self.is_invalid, self.friendly_piece_up_square, self.opponent_piece_up_square, self.current_move)
         # print(self.is_promoting, self.is_promotion_done, self.promoting_move, self.promoting_piece_type)
         # user_input = input("What has changed ? ")
         # if user_input == "":
