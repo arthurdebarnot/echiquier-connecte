@@ -1,15 +1,15 @@
 import chess
 from board_logic import gameTick
 from magnetboard import MagnetBoard
-import evaluation
-import chesswindow
+import evaluation as evaluation
+from chesswindow import ChessWindow
 
 fen = chess.STARTING_FEN
 prev_fen = fen
 
 chessBoard = chess.Board(fen)
 magnetBoard = MagnetBoard(chessBoard)
-chessWindow = chesswindow.ChessWindow(magnetBoard, chessBoard)
+chessWindow = ChessWindow(magnetBoard, chessBoard)
 
 prev_value = evaluation.evaluate(chessBoard.fen())
 

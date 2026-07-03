@@ -1,6 +1,6 @@
 import numpy as np
 import chess
-import stockfish_interface
+import stockfish_interface as stockfish_interface
 
 def evaluate(fen: str):
     eval = stockfish_interface.stockfish_evaluation(fen)
