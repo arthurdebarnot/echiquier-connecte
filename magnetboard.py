@@ -2,6 +2,8 @@ import numpy as np
 import chess
 
 def get_magnetBoard_from_chessBoard(chessBoard: chess.Board):
+    """Fonction permettant d'obtenir le magnetBoard de départ en fonction du FEN de départ"""
+
     board = np.zeros((8,8), dtype=int)
     for i in range(8):
         for j in range(8):
@@ -30,8 +32,9 @@ class MagnetBoard():
 
     def update(self, chessBoard: chess.Board, chessWindow):
         """reads the switches"""
-        # print(self.is_invalid, self.friendly_piece_up_square, self.opponent_piece_up_square, self.current_move)
-        # print(self.is_promoting, self.is_promotion_done, self.promoting_move, self.promoting_piece_type)
+
+        # dans le cas où les coups sont renseignés à la main (ce qu'on faisait au départ)
+
         # user_input = input("What has changed ? ")
         # if user_input == "":
         #     return self.board
@@ -39,5 +42,9 @@ class MagnetBoard():
         #     list_of_changes = user_input.split("_")
         #     for change in list_of_changes:
         #         self.board[int(change[1]), int(change[0])] = int(change[2])
+
+        
+
+        # dans le cas où les coups sont renseignés à l'aide de la fenêtre graphique
 
         chessWindow.update(self, chessBoard)

@@ -2,7 +2,7 @@ import numpy as np
 import chess
 import stockfish_interface as stockfish_interface
 
-def evaluate(fen: str):
+def evaluate(fen: str): # on transforme l'évaluation de stockfish en un nombre dans la droite des réels achevées
     eval = stockfish_interface.stockfish_evaluation(fen)
         
     if eval['type'] == 'mate':
@@ -12,12 +12,12 @@ def evaluate(fen: str):
 
     return value
 
-def quality_evaluation(prev_value, current_value):
+def quality_evaluation(prev_value, current_value): # on évalue la qualité d'un coup à l'aide d'une différence d'argsh
     if current_value == prev_value:
         return 0
     return - np.arcsinh(current_value) - np.arcsinh(prev_value)
 
-def judge_move(chessBoard: chess.Board, prev_fen, prev_value):
+def judge_move(chessBoard: chess.Board, prev_fen, prev_value): # on calcule la qualité du coup à l'aide du fen précédent et de celui actuel
     current_fen = chessBoard.fen()
 
     if current_fen == prev_fen: # aucun coup n'a été effectué
@@ -28,4 +28,4 @@ def judge_move(chessBoard: chess.Board, prev_fen, prev_value):
     print(f"Ton coup est évalué à un score de : {quality_evaluation(prev_value, current_value)}")
     print(f"L'ancienne évaluation est de : {prev_value} et la nouvelle est de {-current_value}")
 
-    return current_value
+    return prev_fen, current_value

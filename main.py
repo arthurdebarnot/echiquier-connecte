@@ -32,5 +32,4 @@ while True:
         print("La nulle peut être réclamée !")
         break
 
-    prev_value = evaluation.judge_move(chessBoard, prev_fen, prev_value) # mise à jour de la dernière évaluation
-    prev_fen = chessBoard.fen() # mise à jour du dernier fen
+    prev_fen, prev_value = evaluation.judge_move(chessBoard, prev_fen, prev_value) # mise à jour de la dernière évaluation et du dernier fen

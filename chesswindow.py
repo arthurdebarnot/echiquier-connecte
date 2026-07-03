@@ -4,17 +4,21 @@ from magnetboard import MagnetBoard
 
 
 def clicked(magnetBoard: MagnetBoard, i, j):
+    """la bibliothèque Tkinter oblige que la fonction à exécuter lors d'un clic ait 1 seul argument, d'où cette fonction pour contourner cette limite"""
     def modify_magnetboard(event):
+        """fonction qui modifie le magnetBoard lorsqu'on clique sur une case"""
         magnetBoard.board[7-i, j] = 1 - magnetBoard.board[7-i, j]
     return modify_magnetboard
 
 def case_color(i, j):
+    """fonction pour récupérer la couleur d'une case en fonction de sa position"""
     if (i+j) % 2 == 0:
         return 'white'
     else:
         return 'gray'
 
 def piece_symbol(chessBoard: chess.Board, i, j):
+    """fonction pour récupérer le symbole représentant la pièce à une case donnée"""
     piece = chessBoard.piece_at(chess.square(j, 7-i))
     symbol = chess.PIECE_SYMBOLS[piece.piece_type]
     if piece.color == chess.WHITE:
@@ -56,8 +60,7 @@ class ChessWindow():
 
 
     def update(self, magnetBoard: MagnetBoard, chessBoard: chess.Board):
-        # self.board.config(text=str(np.flip(magnetBoard.board, axis=0)))
-        # self.board.update_idletasks()
+        """mise à jour de l'interface graphique"""
 
         for i in range(8):
             for j in range(8):
