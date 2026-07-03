@@ -35,3 +35,22 @@ Attention, il faut bien penser que quand le pion est promu, il doit être rempla
 Il est possible de changer la position de départ en le précisant à l'aide d'un FEN. Il est possible de trouver le FEN d'une position à l'aide de ce [lien](https://www.chess.com/analysis)
 
 #### Evaluation par stockfish des coups
+
+
+L'intérêt de cet échiquier connecté est de pouvoir évaluer chaque coup et donner du "feedback" en temps réel aux jouers. Ceci se fait à travers une algorithme d'échecs, stockfish. À chaque coup, l'état du jeu (FEN) est envoyé à stockfish, qui évalue la situation et renvoie une valeur (qu'on passe ensuite dans la fonction $\mathrm{arcsinh}$ pour des histoires d'échelle). En le comparant avec la situation d'avant, on peut ainsi juger la pertinence du coup.
+
+
+## Partie physique
+
+### LED strip
+
+Pour mieux communiquer des information importantes (coup illégal, "blunder", etc.) aux joueurs, une LED strip est mise sous l'échiquier et peut allumer chaque case de différentes couleurs (rouge, vert, orange, etc.). 
+
+### Reed switch
+
+Pour détecter la présence ou non d'une pièce, des reed switch sont mises sous chaque case et des aimants sont mises sous chaque pièce. Ainsi, lorsqu'une pièce est mise sur une case, le reed switch s'active et une courant circule. On fait usage d'un multiplexeur pour permettre de sonder toutes les cases malgré le nombre d'inputs limité du Raspberry Pi. Malheureusement, on n'a pas recu la commande de ces capteurs, et on a dû utiliser ceux du projet de l'année dernière, ce qui posait pas mal de problèmes (capteurs cassés, nécessité de resouder plusieurs connexions, etc.).
+
+### Impréssion 3D
+On a imprimé en 3D une échiquier fine (épaisseur 0.5mm) pour mettre au-dessus du LED strip et des reed-switch, ainsi que des pièces. Il fallait faire la conception des pièces nous-mêmes pour pouvoir bien mettre des aimants en-dessous. Malheureusement, nous n'avons jamais reçu les aimants, et nous avons dû faire recours aux pièces utilisées par le groupe de l'année précedente. 
+
+
