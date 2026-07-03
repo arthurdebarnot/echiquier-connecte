@@ -2,7 +2,7 @@
 
 ## Installation des packages
 
-Installer les modules : conda env create -f environment.yml
+`conda env create -f environment.yml`
 
 ## Fonctionnement du programme
 
@@ -26,7 +26,8 @@ Si une pièce est posée sur la case tampon, la pièce doit être soulevée puis
 
 ---
 
-Attention, il faut bien penser que quand le pion est promu, il doit être remplacé par une autre pièce, et donc pour que l'ordinateur valide la promotion, la case du pion doit être désactivée puis réactivée pour simuler ce changement de pièce.
+**ATTENTION**
+Il faut bien penser que quand le pion est promu, il doit être remplacé par une autre pièce, et donc pour que l'ordinateur valide la promotion, la case du pion doit être désactivée puis réactivée pour simuler ce changement de pièce.
 
 ---
 
