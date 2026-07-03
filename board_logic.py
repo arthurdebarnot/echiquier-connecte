@@ -15,7 +15,7 @@ def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board, chessWindow: Che
         if np.array_equal(magnetBoard.board, magnetBoard.last_valid_board):
             if magnetBoard.validation_start_time < 0:
                 magnetBoard.validation_start_time = time.time()
-            elif time.time() - magnetBoard.validation_start_time >= 5:
+            elif time.time() - magnetBoard.validation_start_time >= 2:
                 magnetBoard.is_invalid = False
                 magnetBoard.validation_start_time = -1
                 magnetBoard.friendly_piece_up_square = None
@@ -125,6 +125,8 @@ def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board, chessWindow: Che
         move = chess.Move(magnetBoard.friendly_piece_up_square, modified_square, promotion=None)
         promotion_move = chess.Move(magnetBoard.friendly_piece_up_square, modified_square, promotion=chess.QUEEN)
 
+        magnetBoard.current_move = move
+
         if not chessBoard.is_legal(move) and not chessBoard.is_legal(promotion_move):
             print("move illégal")
             magnetBoard.is_invalid = True
@@ -134,6 +136,9 @@ def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board, chessWindow: Che
             print("pas une capture mais pièce adverse soulevée")
             magnetBoard.is_invalid = True
             return
+        
+        if chessBoard.is_en_passant(magnetBoard.current_move) and magnetBoard.opponent_piece_up_square is None:
+            pass
         
         if chessBoard.piece_at(move.from_square).piece_type == chess.PAWN and (chess.square_rank(move.to_square) == 0 or chess.square_rank(move.to_square) == 7):
             magnetBoard.is_promoting = True

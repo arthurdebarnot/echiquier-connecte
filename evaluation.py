@@ -20,7 +20,7 @@ def judge_move(chessBoard: chess.Board, prev_fen, prev_value):
     
     current_value = evaluate(current_fen)
 
-    print(- np.arcsinh(current_value) - np.arcsinh(prev_value))
-    print(prev_value, -current_value)
+    print(f"Ton coup est évalué à un score de : {- np.arcsinh(current_value) - np.arcsinh(prev_value)}")
+    print(f"L'ancienne évaluation est de : {prev_value} et la nouvelle est de {-current_value}")
 
     return current_fen, current_value
