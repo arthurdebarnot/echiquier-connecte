@@ -28,4 +28,4 @@ def judge_move(chessBoard: chess.Board, prev_fen, prev_value):
     print(f"Ton coup est évalué à un score de : {quality_evaluation(prev_value, current_value)}")
     print(f"L'ancienne évaluation est de : {prev_value} et la nouvelle est de {-current_value}")
 
-    return current_fen, current_value
+    return current_value
