@@ -10,7 +10,7 @@ Installer les modules : conda env create -f environment.yml
 
 Etant donné que nous n'avons pas eu accès aux capteurs nous avons beaucoup développé l'aspect simulation des inputs pour tester notre programme d'échecs.
 
-Le fichier à exécuter est celui qui s'appelle `main.py`. Il est possible de modifier le FEN de départ. Une interface graphique s'ouvre et permet de visualiser la position des capteurs allumés, ainsi que la position des pièces enregistrée par l'ordinateur.
+Le fichier à exécuter est celui qui s'appelle [main.py](./main.py). Il est possible de modifier le FEN de départ. Une interface graphique s'ouvre et permet de visualiser la position des capteurs allumés, ainsi que la position des pièces enregistrée par l'ordinateur.
 
 En cliquant sur les cases, on peut simuler l'allumage ou l'extinction d'un reed switch. Lorsque le programme détecte qu'un coup a été effectué (par exemple, soulèvement du pion en e2, puis posage sur pion en e4), il met à jour son échiquier interne et déplace la lettre du pion.
 
@@ -27,3 +27,7 @@ Si une pièce est posée sur la case tampon, la pièce doit être soulevée puis
 ---
 
 Attention, il faut bien penser que quand le pion est promu, il doit être remplacé par une autre pièce, et donc pour que l'ordinateur valide la promotion, la case du pion doit être désactivée puis réactivée pour simuler ce changement de pièce.
+
+---
+
+#### Evaluation par stockfish des coups
