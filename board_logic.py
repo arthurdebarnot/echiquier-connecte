@@ -3,10 +3,12 @@ import numpy as np
 import chess
 import time
 from magnetboard import MagnetBoard
+from chesswindow import ChessWindow
 
 # Game Loop
-def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board, previous_magnetBoard):
-    magnetBoard.update()
+def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board, chessWindow: ChessWindow):
+    previous_magnetBoard = magnetBoard.board.copy()
+    magnetBoard.update(chessBoard, chessWindow)
 
     if magnetBoard.is_invalid:
         print("Invalide !")

@@ -1,5 +1,6 @@
 import numpy as np
 import chess
+from chesswindow import ChessWindow
 
 def get_magnetBoard_from_chessBoard(chessBoard: chess.Board):
     board = np.zeros((8,8), dtype=int)
@@ -29,7 +30,7 @@ class MagnetBoard():
         self.promoting_piece_type = None
         self.is_promotion_done = False
 
-    def update(self):
+    def update(self, chessBoard: chess.Board, chessWindow: ChessWindow):
         """reads the switches"""
         # print(self.is_invalid, self.friendly_piece_up_square, self.opponent_piece_up_square)
         print(self.is_promoting, self.is_promotion_done, self.promoting_move, self.promoting_piece_type)
@@ -40,3 +41,5 @@ class MagnetBoard():
         #     list_of_changes = user_input.split("_")
         #     for change in list_of_changes:
         #         self.board[int(change[1]), int(change[0])] = int(change[2])
+
+        chessWindow.update(self, chessBoard)

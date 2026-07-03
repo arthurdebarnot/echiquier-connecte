@@ -1,5 +1,4 @@
 import tkinter as tk
-import numpy as np
 import chess
 from magnetboard import MagnetBoard
 
@@ -9,11 +8,19 @@ def clicked(magnetBoard: MagnetBoard, i, j):
         magnetBoard.board[7-i, j] = 1 - magnetBoard.board[7-i, j]
     return modify_magnetboard
 
-def color(i, j):
+def case_color(i, j):
     if (i+j) % 2 == 0:
         return 'white'
     else:
         return 'gray'
+
+def piece_symbol(chessBoard: chess.Board, i, j):
+    piece = chessBoard.piece_at(chess.square(j, 7-i))
+    symbol = chess.PIECE_SYMBOLS[piece.piece_type]
+    if piece.color == chess.WHITE:
+        return symbol.capitalize()
+    else:
+        return symbol.lower()
 
 
 class ChessWindow():
@@ -33,12 +40,12 @@ class ChessWindow():
 
         for i in range(8):
             for j in range(8):
-                frame = tk.Frame(self.window, height=50, width=50, bg=color(i, j))
+                frame = tk.Frame(self.window, height=50, width=50, bg=case_color(i, j))
                 frame.bind('<Button-1>', clicked(magnetBoard, i, j))
                 frame.grid(column=j, row=i)
                 frame.pack_propagate(False)
 
-                label = tk.Label(frame, text="", bg=color(i, j))
+                label = tk.Label(frame, text="", bg=case_color(i, j))
                 label.bind('<Button-1>', clicked(magnetBoard, i, j))
                 label.pack()
 
@@ -60,7 +67,7 @@ class ChessWindow():
                     self.frame_list[i][j].config(bd=0, relief='solid')
 
                 if chessBoard.piece_at(chess.square(j, 7-i)) is not None:
-                    self.label_list[i][j].config(text=chess.PIECE_SYMBOLS[chessBoard.piece_at(chess.square(j, 7-i)).piece_type])
+                    self.label_list[i][j].config(text=piece_symbol(chessBoard, i, j))
                 else:
                     self.label_list[i][j].config(text="")
                 
