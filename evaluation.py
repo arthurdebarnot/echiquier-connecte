@@ -12,6 +12,11 @@ def evaluate(fen: str):
 
     return value
 
+def quality_evaluation(prev_value, current_value):
+    if current_value == prev_value:
+        return 0
+    return - np.arcsinh(current_value) - np.arcsinh(prev_value)
+
 def judge_move(chessBoard: chess.Board, prev_fen, prev_value):
     current_fen = chessBoard.fen()
 
@@ -20,7 +25,7 @@ def judge_move(chessBoard: chess.Board, prev_fen, prev_value):
     
     current_value = evaluate(current_fen)
 
-    print(f"Ton coup est évalué à un score de : {- np.arcsinh(current_value) - np.arcsinh(prev_value)}")
+    print(f"Ton coup est évalué à un score de : {quality_evaluation(prev_value, current_value)}")
     print(f"L'ancienne évaluation est de : {prev_value} et la nouvelle est de {-current_value}")
 
     return current_fen, current_value
