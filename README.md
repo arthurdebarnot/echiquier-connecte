@@ -2,7 +2,7 @@
 
 ## Installation des packages
 
-`conda env create -f environment.yml`
+`conda env create -f environment-windows.yml`
 
 ## Fonctionnement du programme
 
@@ -49,9 +49,9 @@ Pour mieux communiquer des information importantes (coup illégal, "blunder", et
 
 ### Reed switch
 
-Pour détecter la présence ou non d'une pièce, des reed switches sont mis sous chaque case et des aimants sont mis sous chaque pièce. Ainsi, lorsqu'une pièce est mise sur une case, le reed switch s'active et un courant circule. On fait usage d'un multiplexeur pour permettre de sonder toutes les cases malgré le nombre d'inputs limité du Raspberry Pi. Malheureusement, on n'a pas recu la commande de ces capteurs, et on a dû utiliser ceux du projet de l'année dernière, ce qui posait pas mal de problèmes (capteurs cassés, nécessité de resouder plusieurs connexions, etc.).
+Pour détecter la présence ou non d'une pièce, des reed switches sont mis sous chaque case et des aimants sont mis sous chaque pièce. Ainsi, lorsqu'une pièce est mise sur une case, le reed switch s'active et un courant circule. Il aurait fallut faire usage d'un multiplexeur pour permettre de sonder toutes les cases malgré le nombre d'inputs limité du Raspberry Pi. En l'absence de celui-ci, nous n'avons accès qu'à 48 cases (8 colonnes et seulement 6 lignes). Malheureusement, on n'a pas recu la commande de ces capteurs, et on a dû utiliser ceux du projet de l'année dernière, ce qui posait pas mal de problèmes (capteurs cassés, nécessité de resouder plusieurs connexions, etc.).
+
+La lecture se fait grâce à [reedswitches-leds.py](./reedswitches-leds.py)
 
 ### Impression 3D
 On a imprimé en 3D une échiquier fin (épaisseur 0.5mm) pour le mettre au-dessus du LED strip et des reed-switches, ainsi que des pièces avec un trou pour les aimants. Il fallait faire la conception des pièces nous-mêmes pour pouvoir bien mettre des aimants en-dessous. Malheureusement, nous n'avons jamais reçu les aimants, et nous avons dû faire recours aux pièces utilisées par le groupe de l'année précedente. 
-
-
