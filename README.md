@@ -30,6 +30,10 @@ Attention, il faut bien penser que quand le pion est promu, il doit être rempla
 
 ---
 
+#### Choix du FEN de départ
+
+Il est possible de changer la position de départ en le précisant à l'aide d'un FEN. Il est possible de trouver le FEN d'une position à l'aide de ce [lien](https://www.chess.com/analysis)
+
 #### Evaluation par stockfish des coups
 
 

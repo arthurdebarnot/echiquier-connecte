@@ -4,18 +4,20 @@ from magnetboard import MagnetBoard
 import evaluation as evaluation
 from chesswindow import ChessWindow
 
-fen = chess.STARTING_FEN
-prev_fen = fen
+fen = chess.STARTING_FEN # sélection du fen de la position de départ
+prev_fen = fen # stocke le FEN de la dernière position
 
-chessBoard = chess.Board(fen)
-magnetBoard = MagnetBoard(chessBoard)
-chessWindow = ChessWindow(magnetBoard, chessBoard)
+chessBoard = chess.Board(fen) # plateau d'échec de l'ordinateur
+magnetBoard = MagnetBoard(chessBoard) # plateau magnétique se mettant à jour en fonction des reed switches
+chessWindow = ChessWindow(magnetBoard, chessBoard) # fenêtre graphique
 
-prev_value = evaluation.evaluate(chessBoard.fen())
+prev_value = evaluation.evaluate(chessBoard.fen()) # évaluation de la dernière position
 
 
 while True:
-    gameTick(magnetBoard, chessBoard, chessWindow)
+    gameTick(magnetBoard, chessBoard, chessWindow) # collecte les nouveaux états des reed switches et met à jour le magnetBoard et le chessBoard si besoin. Mets aussi à jour la gui
+
+    # Vérification des conditions de fin de partie
 
     if chessBoard.is_checkmate():
         print("Fin de partie par échec et mat !")
@@ -30,4 +32,5 @@ while True:
         print("La nulle peut être réclamée !")
         break
 
-    prev_fen, prev_value = evaluation.judge_move(chessBoard, prev_fen, prev_value)
+    prev_value = evaluation.judge_move(chessBoard, prev_fen, prev_value) # mise à jour de la dernière évaluation
+    prev_fen = chessBoard.fen() # mise à jour du dernier fen
