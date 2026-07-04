@@ -1,0 +1,7 @@
+# Remarque : tkinter n'est pas installable via pip.
+# Utiliser environment.yml (conda) pour l'installer automatiquement,
+# ou installer tkinter séparément selon votre OS.
+
+python-chess
+numpy
+stockfish

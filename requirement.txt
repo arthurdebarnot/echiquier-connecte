@@ -1,7 +1,0 @@
-stockfish-windows-x86-64-avx2.exe
-environment-rpi.yml
-reedswitches-leds.py
-chess.py
-numpy
-time
-tkinter 
