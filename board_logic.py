@@ -44,7 +44,7 @@ def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board, chessWindow: Che
     difference_magnetBoard_nonzero = difference_magnetBoard.nonzero()
 
     if len(difference_magnetBoard_nonzero[0]) > 1: # si il y a plus d'une modification, on ne peut rien interpréter donc on rentre dans un cas invalide
-        print("plusieurs pièces bougées en même temps")
+        print("[INVALIDE] plusieurs pièces bougées en même temps")
         magnetBoard.is_invalid = True
         return
     
@@ -59,12 +59,12 @@ def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board, chessWindow: Che
             else: # pion posé
                 magnetBoard.is_promotion_done = True # variable qui retient si le pion a bien été promu en une autre pièce sur l'échiquier physique
         elif modified_square not in tampon_squares: # on touche à une case random pendant la promotion
-            print("Tu ne peux pas modifier l'état d'une case random pendant la promotion")
+            print("[INVALIDE] Tu ne peux pas modifier l'état d'une case random pendant la promotion")
             magnetBoard.is_invalid = True
             return
         else: # on modifie l'état d'une des 4 cases tampon
             if magnetBoard.friendly_piece_up_square is not None and magnetBoard.friendly_piece_up_square != modified_square:
-                print("Tu as déjà touché une autre pièce")
+                print("[INVALIDE] Tu as déjà touché une autre pièce")
                 magnetBoard.is_invalid = True
                 return
 
@@ -96,7 +96,7 @@ def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board, chessWindow: Che
     if difference_magnetBoard[difference_magnetBoard_nonzero][0] == -1: # une pièce est soulevée
         if chessBoard.color_at(modified_square) == chessBoard.turn: # pièce alliée
             if magnetBoard.friendly_piece_up_square is not None: # si une pièce alliée avait déjà été soulevée
-                print("pièce alliée déjà soulevée")
+                print("[INVALIDE] pièce alliée déjà soulevée")
                 magnetBoard.is_invalid = True
                 magnetBoard.friendly_piece_up_square = None
                 magnetBoard.opponent_piece_up_square = None
@@ -105,7 +105,7 @@ def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board, chessWindow: Che
             return
         else: # pièce adverse
             if magnetBoard.opponent_piece_up_square is not None: # si une pièce adverse avait déjà été soulevée
-                print("pièce adverse déjà soulevée")
+                print("[INVALIDE] pièce adverse déjà soulevée")
                 magnetBoard.is_invalid = True
                 magnetBoard.friendly_piece_up_square = None
                 magnetBoard.opponent_piece_up_square = None
@@ -114,17 +114,17 @@ def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board, chessWindow: Che
             if magnetBoard.current_move is None:
                 return
     else: # une pièce est posée
-        if magnetBoard.friendly_piece_up_square is None: # aucune pièce alliée n'avait été soulevée
+        if magnetBoard.friendly_piece_up_square is None: # aucune pièce alliée n'a été soulevée
             if magnetBoard.opponent_piece_up_square == modified_square: # une pièce adverse a été prise puis reposée, on ne fait rien
                 magnetBoard.opponent_piece_up_square = None
                 return
                 
-            print("aucune pièce alliée n'avait été soulevée")
+            print("[INVALIDE] aucune pièce alliée n'a été soulevée")
             magnetBoard.is_invalid = True
             return
         elif magnetBoard.friendly_piece_up_square == modified_square: # la pièce alliée est reposée au même endroit
                 if magnetBoard.opponent_piece_up_square is not None: # si une pièce adverse avait été soulevée, c'est un cas invalide
-                    print("Repose la pièce adverse")
+                    print("[INVALIDE] Repose la pièce adverse")
                     magnetBoard.is_invalid = True
                 magnetBoard.friendly_piece_up_square = None
                 return
@@ -133,12 +133,12 @@ def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board, chessWindow: Che
         promotion_move = chess.Move(magnetBoard.friendly_piece_up_square, modified_square, promotion=chess.QUEEN) # on enregistre le coup dans le cas où c'est une promotion (important lors de la vérification de la légalité du coup)
 
         if not chessBoard.is_legal(move) and not chessBoard.is_legal(promotion_move): # vérification de la légalité du coup
-            print("move illégal")
+            print("[INVALIDE] coup illégal")
             magnetBoard.is_invalid = True
             return
     
         if not chessBoard.is_capture(move) and magnetBoard.opponent_piece_up_square is not None: # vérification qu'on n'a pas soulevé une pièce adverse alors qu'on ne capture pas
-            print("pas une capture mais pièce adverse soulevée")
+            print("[INVALIDE] le coup n'est pas une capture mais une pièce adverse a été soulevée")
             magnetBoard.is_invalid = True
             return
         
@@ -169,7 +169,7 @@ def gameTick(magnetBoard: MagnetBoard, chessBoard: chess.Board, chessWindow: Che
     
     if magnetBoard.is_castling: # le roque se fait en deux coups : mouvement du roi puis de la tour, il faut donc le traiter à part, enregistrer qu'on est en train de roquer, puis exécuter ces instructions précises lorsqu'on bouge la tour pour vérifier la légalité du coup
         if chessBoard.piece_at(move.from_square).piece_type != chess.ROOK or move.from_square != magnetBoard.castling_rook_squares[0] or move.to_square != magnetBoard.castling_rook_squares[1]: # on s'assure que la pièce est une tour, qu'elle part de la bonne case et qu'elle arrive à la bonne case
-            print("la tour n'a pas été placée au bon endroit")
+            print("[INVALIDE] la tour n'a pas été placée au bon endroit")
             magnetBoard.is_invalid = True
             return
             
