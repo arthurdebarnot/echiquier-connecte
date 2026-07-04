@@ -9,6 +9,7 @@ dependencies:
   - numpy
   - chess
   - pip
+  - tk
   - pip:
     - rpi_ws281x
     - RPi.GPIO
