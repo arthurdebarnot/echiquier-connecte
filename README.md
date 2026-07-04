@@ -13,7 +13,8 @@ Il est nécessaire d'avoir l'exécutable `stockfish-windows-x86-64-avx2.exe` dan
 - [chesswindow.py](./chesswindow.py) : définit la classe ChessWindow qui permet de stocker la GUI et notamment ses différents éléments pour ensuite pouvoir les mettre à jour au fil des ticks
 - [board_logic.py](./board_logic.py) : gère la compréhension de ce qui se passe sur le magnetBoard, comprend lorsqu'un coup est joué en fonction des reeds switches qui sont activés ou désactivés
 - [evaluation.py](./evaluation.py) : contient les fonctions permettant de demander à Stockfish d'évaluer un coup
-- [stockfish_interface.py](./stockfish_interface.py) : programme permettant de faire l'interface avec Stockfish et d'intéragir avec l'engine. Programme inspiré d'un programme fait par d'anciens élèves des Mines.
+- [stockfish_interface.py](./stockfish_interface.py) : programme permettant de faire l'interface avec Stockfish et d'intéragir avec l'engine.
+- [reedswitches-leds.py](./reedswitches-leds.py) : programme tournant sur la Raspberry Pi permettant d'allumer en vert les cases avec une pièces dessus. Nécessite l'installation des packages de [environment-rpi.yml](./environment-rpi.yml).
 
 ## Fonctionnement du programme
 
